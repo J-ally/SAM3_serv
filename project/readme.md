@@ -75,6 +75,26 @@ pip install -e sam3
 The `sam3/` directory must be present **at the same level as this repository** or otherwise available in your `PYTHONPATH`.
 
 ---
+##  Access Requirements (Hugging Face)
+
+SAM3 is a **gated model** hosted on Hugging Face.  
+Before using this pipeline, you must **request access** and **authenticate locally**.
+
+### 1- Request access to SAM3
+
+You must request access on the official SAM3 Hugging Face page  
+(approval required by Meta / Facebook Research).
+
+> ⚠️ Without approval, the model weights cannot be downloaded.
+
+### 2- Authenticate with your Hugging Face account
+
+Once access is granted, log in locally:
+
+```bash
+huggingface-cli login
+```
+---
 
 ##  Running the Pipeline
 
@@ -179,3 +199,4 @@ The model weights and license are defined by the official **SAM3 (Facebook Resea
 
 - SAM3: https://github.com/facebookresearch/sam3
 - Segment Anything: https://github.com/facebookresearch/segm
+
