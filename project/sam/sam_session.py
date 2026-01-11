@@ -1,8 +1,9 @@
 import logging
-from typing import Dict
+from typing import Dict, List
 
 import numpy as np
-from sam3.model_builder import build_sam3_video_predictor
+from transformers import Sam3VideoModel, Sam3VideoProcessor
+import torch
 
 logger = logging.getLogger(__name__)
 
@@ -13,66 +14,105 @@ class SAMSession:
     def __init__(self) -> None:
         """Initialize the SAM3 video predictor."""
         logger.info("Initializing SAM3 predictor")
-        self.predictor = build_sam3_video_predictor()
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        
+        self.predictor = Sam3VideoModel.from_pretrained("facebook/sam3", 
+                        torch_dtype=torch.float16).to(self.device).eval()
+        self.processor = Sam3VideoProcessor.from_pretrained("facebook/sam3")
+        
 
-    def start(self, video_path: str) -> str:
+    def start(self, video_path: str):
         """Start a new SAM session for a video.
 
         Args:
             video_path: Path to the input video.
-
         Returns:
-            Session identifier.
+            An initialized streaming inference session object.
         """
         logger.info("Starting session for %s", video_path)
-        response = self.predictor.handle_request(
-            dict(type="start_session", resource_path=video_path)
-        )
-        return response["session_id"]
+        streaming_inference_session = self.processor.init_video_session(
+            inference_device=self.device,
+            processing_device=self.device,
+            video_storage_device="cpu",
+            dtype=torch.float16,
+         )
+        return streaming_inference_session
 
     def add_prompt(
         self,
-        session_id: str,
+        inference_session: str,
         text: str,
-        frame_index: int = 0,
-    ) -> Dict[int, np.ndarray]:
+    ):
         """Add a text prompt to a SAM session.
 
         Args:
-            session_id: Identifier of the SAM session.
+            inference_session: Active streaming inference session.
             text: Text prompt describing the target object.
-            frame_index: Index of the frame where the prompt is applied.
 
         Returns:
-            Mapping from object ID to segmentation mask for the frame.
+            The updated streaming inference session.
         """
-        logger.info("Adding prompt '%s' to session %s", text, session_id)
-        response = self.predictor.handle_request(
-            dict(
-                type="add_prompt",
-                session_id=session_id,
-                frame_index=frame_index,
-                text=text,
-            )
+        logger.info("Adding prompt '%s'", text)
+        streaming_inference_session = self.processor.add_text_prompt(
+            inference_session=inference_session,
+            text=text,
         )
-        return response["outputs"]
+        return streaming_inference_session
 
-    def propagate(self, session_id: str) -> Dict[int, Dict[int, np.ndarray]]:
+    def propagate(self, 
+                  streaming_inference_session,
+                  batch_frames: List[np.ndarray],
+                  start_frame_index: int,
+                  batch_id: int,
+        ) -> Dict[int, Dict[int, np.ndarray]]:
         """Propagate segmentation through the video.
 
         Args:
-            session_id: Identifier of the SAM session.
+            streaming_inference_session: Initialized SAM3 streaming session
+            with prompts already added.
+            batch_frames: List of frames (H, W, C) in RGB format.
+            start_frame_index: Global frame index offset for this batch.
+            batch_id: Identifier of the current batch.
 
         Returns:
             Mapping from frame index to object masks.
         """
-        logger.info("Propagating session %s", session_id)
+        logger.info("Propagating batch %s", batch_id)
 
         outputs: Dict[int, Dict[int, np.ndarray]] = {}
-        for r in self.predictor.handle_stream_request(
-            dict(type="propagate_in_video", session_id=session_id)
-        ):
-            outputs[r["frame_index"]] = r["outputs"]
 
-        logger.info("Propagation done for session %s", session_id)
+        for local_idx, frame in enumerate(batch_frames):
+            # Preprocess single frame
+            inputs = self.processor(
+                images=frame,
+                return_tensors="pt",
+            )
+
+            pixel_values = inputs.pixel_values.to(
+                device=self.device,
+                dtype=torch.float16,
+            )
+
+            # Streaming inference (stateful)
+            with torch.no_grad():
+                model_outputs = self.predictor(
+                    inference_session=streaming_inference_session,
+                    frame=pixel_values[0],
+                    reverse=False,
+                )
+
+            processed_outputs = self.processor.postprocess_outputs(
+            streaming_inference_session,
+            model_outputs,
+            original_sizes=inputs.original_sizes,
+            )
+
+            global_frame_idx = start_frame_index + local_idx
+            outputs[global_frame_idx] = processed_outputs
+
+        logger.info(
+            "Finished propagating frames %d to %d",
+            start_frame_index,
+            start_frame_index + len(batch_frames) - 1,
+        )
         return outputs

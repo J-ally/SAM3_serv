@@ -16,6 +16,8 @@ def extract_batches(video_path: str, batch_size: int):
         batch_size: Number of frames per batch.
     """
     cap = cv2.VideoCapture(video_path)
+    if not cap.isOpened():
+        raise RuntimeError(f"Cannot open video: {video_path}")
     batch = []
 
     try:
