@@ -16,8 +16,7 @@ class SAMSession:
         logger.info("Initializing SAM3 predictor")
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         
-        self.predictor = Sam3VideoModel.from_pretrained("facebook/sam3", 
-                        torch_dtype=torch.float16).to(self.device).eval()
+        self.predictor = Sam3VideoModel.from_pretrained("facebook/sam3").to(self.device).eval()
         self.processor = Sam3VideoProcessor.from_pretrained("facebook/sam3")
         
 
@@ -32,9 +31,8 @@ class SAMSession:
         logger.info("Starting session for %s", video_path)
         streaming_inference_session = self.processor.init_video_session(
             inference_device=self.device,
-            processing_device=self.device,
+            processing_device="cpu",
             video_storage_device="cpu",
-            dtype=torch.float16,
          )
         return streaming_inference_session
 
@@ -88,10 +86,7 @@ class SAMSession:
                 return_tensors="pt",
             )
 
-            pixel_values = inputs.pixel_values.to(
-                device=self.device,
-                dtype=torch.float16,
-            )
+            pixel_values = inputs.pixel_values.to(device=self.device)
 
             # Streaming inference (stateful)
             with torch.no_grad():
