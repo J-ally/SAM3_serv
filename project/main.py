@@ -1,11 +1,8 @@
-import logging
 import os
+import subprocess
+import logging
 import config
 from video.clipper import extract_clips
-from pipeline.extractor import run_extraction
-from sam.sam_session import SAMSession
-import torch
-import gc
 
 logging.basicConfig(
     filename="pipeline.log",
@@ -15,6 +12,7 @@ logging.basicConfig(
 
 logging.info("Pipeline started")
 
+# Découpe des clips
 extract_clips(
     config.INPUT_FOLDER,
     config.CLIP_FOLDER,
@@ -22,24 +20,22 @@ extract_clips(
     config.FRAME_STEP,
 )
 
-for clip in os.listdir(config.CLIP_FOLDER):
-    sam = SAMSession()          # nouveau predictor
-    try:
-        if not clip.lower().endswith(".mp4"):
-            continue
+# Lancer 1 process par clip
+for clip in sorted(os.listdir(config.CLIP_FOLDER)):
+    if not clip.lower().endswith(".mp4"):
+        continue
 
-        video_path = os.path.join(config.CLIP_FOLDER, clip)
+    clip_path = os.path.join(config.CLIP_FOLDER, clip)
 
-        run_extraction(
-            sam,
-            video_path,
-            config.CROP_FOLDER,
-            config.PROMPT_CLASS,
-            config.PADDING,
-        )
-    finally:
-        del sam
-        torch.cuda.synchronize()
-        torch.cuda.empty_cache()
-        gc.collect()
+    logging.info("Processing clip %s", clip_path)
+
+    subprocess.run(
+        [
+            "python",
+            "process_clip.py",
+            clip_path,
+        ],
+        check=True,
+    )
+
 logging.info("Pipeline finished")

@@ -40,7 +40,7 @@ def run_extraction(
     Raises:
         RuntimeError: If the SAM session or inference fails internally.
     """
-    sid = sam.start(video_path)
+    sid = sam.start(video_path) 
     first = sam.add_prompt(sid, prompt)
     outputs = sam.propagate(sid)
 
