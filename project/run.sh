@@ -1,8 +1,11 @@
 #!/bin/bash
 
-git clone https://github.com/MariusCharles/PFR-ViTCow.git
-cd PFR-ViTCow/project/ || exit 1
+#git clone https://github.com/MariusCharles/PFR-ViTCow.git
+#cd PFR-ViTCow/project/ || exit 1
+
 pip install -r requirements.txt
+git clone https://github.com/facebookresearch/sam3.git
+pip install -e sam3
 
 # -------------------------------
 # Script pour modifier max_num_objects dans SAM3
