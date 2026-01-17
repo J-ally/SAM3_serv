@@ -54,7 +54,6 @@ pytz==2025.2
 PyYAML==6.0.3
 regex==2025.11.3
 safetensors==0.7.0
--e git+https://github.com/facebookresearch/sam3.git@757bbb0206a0b68bee81b17d7eb4877177025b2f#egg=sam3
 scikit-image==0.26.0
 scikit-learn==1.8.0
 scipy==1.17.0
