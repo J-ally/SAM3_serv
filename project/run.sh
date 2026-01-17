@@ -21,10 +21,10 @@ if [ ! -f "$FILE" ]; then
 fi
 
 # Remplace max_num_objects à la ligne 123 seulement
-sed -i '123s/max_num_objects = 10000/max_num_objects = 5/' "$FILE"
+sed -i '124s/max_num_objects = 10000/max_num_objects = 5/' "$FILE"
 
 # Vérifie si la modification a bien été faite
-LINE_CONTENT=$(sed -n '123p' "$FILE")
-echo "Contenu de la ligne 123 après modification : $LINE_CONTENT"
+LINE_CONTENT=$(sed -n '124p' "$FILE")
+echo "Contenu de la ligne 124 après modification : $LINE_CONTENT"
 
 echo "Modification terminée"
