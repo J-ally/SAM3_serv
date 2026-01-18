@@ -58,7 +58,7 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-If conflicts of dependencies, try : 
+If you encounter dependency conflicts, try: 
 
 ```bash
 pip install -r requirements_v2.txt
@@ -81,7 +81,8 @@ git clone https://github.com/facebookresearch/sam3.git
 pip install -e sam3
 ```
 
-The `sam3/` directory must be present **at the same level as this repository** or otherwise available in your `PYTHONPATH`.
+The `sam3/` directory must be present in the `project/` directory or otherwise available in your `PYTHONPATH`.
+If you encounter dependency issues at this step, retry the previous step using the alternative requirements file.
 
 ---
 
@@ -117,7 +118,24 @@ EOF
 
 ---
 
-### 6. Running the Pipeline
+### 6. Choose `max_num_objects`
+
+You can control the maximum number of objects detected by SAM3 using the `max_num_objects` parameter.  
+This helps regulate GPU memory usage and allows you to limit how many cows are kept per clip.
+
+To modify this parameter, we update an internal SAM3 configuration value.
+
+For example, to set `max_num_objects` to 5 (adapt as needed):
+
+```bash
+./update_max_objects.sh 5
+```
+
+> This modification will later be moved directly into the configuration file.
+
+---
+
+### 7. Running the Pipeline
 
 The main entry point is:
 
