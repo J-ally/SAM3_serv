@@ -2,97 +2,124 @@ import cv2
 import numpy as np
 import os
 import logging
-from typing import Dict
+from typing import Dict, Tuple, Optional
+import config
 
 logger = logging.getLogger(__name__)
 
 
-def mask_to_bbox(mask: np.ndarray) -> tuple[int, int, int, int] | None:
-    """Convert a binary segmentation mask into a bounding box.
+# ============================================================
+# MASK => BBOX
+# ============================================================
 
-    The bounding box is computed as the minimal rectangle enclosing all
-    non-zero pixels in the mask.
-
-    Args:
-        mask: Binary mask where non-zero values represent the object.
-
-    Returns:
-        Bounding box as (x_min, y_min, x_max, y_max), or None if the mask
-        is empty.
-    """
+def mask_to_bbox(mask: np.ndarray) -> Optional[Tuple[int, int, int, int]]:
     ys, xs = np.where(mask)
     if len(xs) == 0:
         return None
     return int(xs.min()), int(ys.min()), int(xs.max()), int(ys.max())
 
 
-def crop_black(
+# ============================================================
+# BBOX UTILS
+# ============================================================
+
+def bbox_size(bbox: Tuple[int, int, int, int]) -> Tuple[int, int]:
+    x1, y1, x2, y2 = bbox
+    return x2 - x1, y2 - y1
+
+
+def make_square_bbox(bbox: Tuple[int, int, int, int]) -> Tuple[int, int, int, int]:
+    x1, y1, x2, y2 = bbox
+    w, h = bbox_size(bbox)
+    side = max(w, h)
+
+    cx = (x1 + x2) // 2
+    cy = (y1 + y2) // 2
+    half = side // 2
+
+    return (
+        cx - half,
+        cy - half,
+        cx + half,
+        cy + half,
+    )
+
+
+# ============================================================
+# CORE CROP
+# ============================================================
+
+def crop_with_clamp(
     frame: np.ndarray,
-    bbox: tuple[int, int, int, int] | None,
-    w: int,
-    h: int,
+    bbox: Tuple[int, int, int, int],
+    out_size: int,
 ) -> np.ndarray:
-    """Crop a frame around a bounding box with black padding.
-
-    If the bounding box exceeds the frame boundaries, missing areas
-    are filled with black pixels. If the bounding box is None, a fully
-    black frame is returned.
-
-    Args:
-        frame: Input video frame of shape (H, W, 3).
-        bbox: Bounding box coordinates or None.
-        w: Width of the output frame.
-        h: Height of the output frame.
-
-    Returns:
-        Cropped frame of shape (h, w, 3).
-    """
-    canvas = np.zeros((h, w, 3), dtype=np.uint8)
-    if bbox is None:
-        return canvas
-
     fh, fw, _ = frame.shape
     x1, y1, x2, y2 = bbox
-    cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
 
-    sx = max(0, cx - w // 2)
-    sy = max(0, cy - h // 2)
-    ex = min(fw, sx + w)
-    ey = min(fh, sy + h)
+    sx1 = max(0, x1)
+    sy1 = max(0, y1)
+    sx2 = min(fw, x2)
+    sy2 = min(fh, y2)
 
-    crop = frame[sy:ey, sx:ex]
-    ch, cw, _ = crop.shape
-    ox, oy = (w - cw) // 2, (h - ch) // 2
-    canvas[oy:oy + ch, ox:ox + cw] = crop
+    crop = frame[sy1:sy2, sx1:sx2]
 
-    return canvas
+    out = np.zeros((out_size, out_size, 3), dtype=np.uint8)
+    ox = sx1 - x1
+    oy = sy1 - y1
 
+    out[oy:oy + crop.shape[0], ox:ox + crop.shape[1]] = crop
+    return out
+
+
+# ============================================================
+# PER-FRAME LOGIC
+# ============================================================
+
+def crop_frame(
+    frame: np.ndarray,
+    bbox: Optional[Tuple[int, int, int, int]],
+) -> np.ndarray:
+
+    if bbox is None:
+        return np.zeros((config.CROP_SIZE, config.CROP_SIZE, 3), dtype=np.uint8)
+
+    w, h = bbox_size(bbox)
+
+    if max(w, h) > config.CROP_SIZE:
+        square_bbox = make_square_bbox(bbox)
+        side = max(w, h)
+
+        square_crop = crop_with_clamp(
+            frame,
+            square_bbox,
+            side,
+        )
+
+        return cv2.resize(
+            square_crop,
+            (config.CROP_SIZE, config.CROP_SIZE),
+            interpolation=cv2.INTER_LINEAR,
+        )
+
+    return crop_with_clamp(
+        frame,
+        bbox,
+        config.CROP_SIZE,
+    )
+
+
+# ============================================================
+# VIDEO WRITER
+# ============================================================
 
 def write_cropped(
     video_path: str,
     out_folder: str,
-    bboxes: Dict[int, tuple[int, int, int, int] | None],
-    w: int,
-    h: int,
+    bboxes: Dict[int, Optional[Tuple[int, int, int, int]]],
     obj_id: int,
 ) -> None:
-    """Write a cropped video based on per-frame bounding boxes.
 
-    Each frame of the input video is cropped around the corresponding
-    bounding box. If a bounding box is missing for a frame, a black
-    frame is written instead.
-
-    Args:
-        video_path: Path to the input video file.
-        out_folder: Directory where the cropped video will be saved.
-        bboxes: Mapping from frame index to bounding box or None.
-        w: Width of the output video.
-        h: Height of the output video.
-        obj_id: Identifier of the segmented object.
-
-    Returns:
-        None
-    """
     os.makedirs(out_folder, exist_ok=True)
     logger.info("Writing cropped video for object %s", obj_id)
 
@@ -107,7 +134,7 @@ def write_cropped(
         os.path.join(out_folder, name),
         cv2.VideoWriter_fourcc(*"mp4v"),
         fps,
-        (w, h),
+        (config.CROP_SIZE, config.CROP_SIZE),
     )
 
     i = 0
@@ -115,7 +142,8 @@ def write_cropped(
         ret, frame = cap.read()
         if not ret:
             break
-        out.write(crop_black(frame, bboxes.get(i), w, h))
+
+        out.write(crop_frame(frame, bboxes.get(i)))
         i += 1
 
     cap.release()

@@ -24,7 +24,6 @@ def main():
             video_path,
             config.CROP_FOLDER,
             config.PROMPT_CLASS,
-            config.PADDING,
         )
     finally:
         del sam
