@@ -31,7 +31,7 @@ fi
 # =========================
 # Replace ONLY the config line
 # =========================
-sed -i -E "s/^[[:space:]]*max_num_objects[[:space:]]*=[[:space:]]*[0-9]+/max_num_objects = ${MAX_OBJECTS}/" "$FILE"
+sed -i -E "s/^([[:space:]]*)max_num_objects[[:space:]]*=[[:space:]]*[0-9]+/\1max_num_objects = ${MAX_OBJECTS}/" "$FILE"
 
 # =========================
 # Show result
