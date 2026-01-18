@@ -146,7 +146,7 @@ bash update_max_objects.sh <path_to_sam3_repo> <max_num_objects>
 For example, to set `max_num_objects` to 5, in a LightningAI setup:
 
 ```bash
-./update_max_objects.sh /teamspace/studios/this_studio/PFR-ViTCow/project/sam3 5
+bash update_max_objects.sh /teamspace/studios/this_studio/PFR-ViTCow/project/sam3 5
 ```
 
 > This modification will later be moved directly into the configuration file.
