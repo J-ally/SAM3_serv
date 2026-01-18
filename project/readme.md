@@ -128,7 +128,7 @@ To modify this parameter, we update an internal SAM3 configuration value.
 For example, to set `max_num_objects` to 5 (adapt as needed):
 
 ```bash
-./update_max_objects.sh 5
+bash update_max_objects.sh 5
 ```
 
 > This modification will later be moved directly into the configuration file.
