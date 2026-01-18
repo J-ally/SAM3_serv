@@ -11,7 +11,6 @@ fi
 SAM3_PATH="$1"
 MAX_OBJECTS="$2"
 FILE="${SAM3_PATH}/sam3/model/sam3_video_base.py"
-LINE_NUMBER=124
 
 # =========================
 # Check that the file exists
@@ -22,14 +21,22 @@ if [ ! -f "$FILE" ]; then
 fi
 
 # =========================
-# Replace max_num_objects value
+# Check that the target line exists
 # =========================
-sed -i "${LINE_NUMBER}s/max_num_objects = [0-9]\+/max_num_objects = ${MAX_OBJECTS}/" "$FILE"
+if ! grep -Eq '^[[:space:]]*max_num_objects[[:space:]]*=[[:space:]]*[0-9]+' "$FILE"; then
+    echo "Error: target max_num_objects assignment not found in $FILE."
+    exit 1
+fi
 
 # =========================
-# Check that the modification was applied
+# Replace ONLY the config line
 # =========================
-LINE_CONTENT=$(sed -n "${LINE_NUMBER}p" "$FILE")
-echo "Line ${LINE_NUMBER} content after modification: $LINE_CONTENT"
+sed -i -E "s/^[[:space:]]*max_num_objects[[:space:]]*=[[:space:]]*[0-9]+/max_num_objects = ${MAX_OBJECTS}/" "$FILE"
+
+# =========================
+# Show result
+# =========================
+LINE_CONTENT=$(grep -E '^[[:space:]]*max_num_objects[[:space:]]*=' "$FILE")
+echo "Updated line: $LINE_CONTENT"
 
 echo "Modification completed successfully."
