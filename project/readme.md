@@ -23,31 +23,29 @@ This repository acts as an **orchestration layer** around the official **SAM3** 
 
 ---
 
-##  Requirements
+## Running the Pipeline
 
-### Environment
+### 1. Environment
 
 - **Python 3.12 (required)**
 - NVIDIA GPU recommended (CUDA)
 
-Create a virtual environment:
+If you are running the code locally, create a dedicated Conda environment:
 
 ```bash
 conda create -n sam3-pipeline python=3.12
 conda activate sam3-pipeline
 ```
 
----
+If you are running this project on Lightning AI (Studio / CloudSpace), skip this step.
 
-##  Python Dependencies
+### 2. Clone the Repo 
 
-```txt
-opencv-python
-einops
-decord
-pycocotools
-scikit-image
+```bash
+git clone https://github.com/MariusCharles/PFR-ViTCow.git
 ```
+
+### 3. Python Dependencies
 
 Install dependencies:
 
@@ -55,17 +53,23 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
+If conflicts of dependencies, try : 
+
+```bash
+pip install -r requirements_v2.txt
+```
+
 ---
 
-##  External Dependency: SAM3
+### 4. External Dependency: SAM3
 
 SAM3 is **not distributed on PyPI** and must be cloned from the official repository.
 
-### Official repository
+#### Official repository
 
  https://github.com/facebookresearch/sam3
 
-### Installation
+#### Installation
 
 ```bash
 git clone https://github.com/facebookresearch/sam3.git
@@ -74,29 +78,38 @@ pip install -e sam3
 
 The `sam3/` directory must be present **at the same level as this repository** or otherwise available in your `PYTHONPATH`.
 
----
-##  Access Requirements (Hugging Face)
+
+### 5. Access Requirements (Hugging Face)
 
 SAM3 is a **gated model** hosted on Hugging Face.  
 Before using this pipeline, you must **request access** and **authenticate locally**.
 
-### 1- Request access to SAM3
+#### A- Request access to SAM3
 
 You must request access on the official SAM3 Hugging Face page  
 (approval required by Meta / Facebook Research).
 
 > ⚠️ Without approval, the model weights cannot be downloaded.
 
-### 2- Authenticate with your Hugging Face account
+#### B- Authenticate with your Hugging Face account
 
 Once access is granted, log in locally:
 
 ```bash
 huggingface-cli login
 ```
----
 
-##  Running the Pipeline
+If it fails, try : 
+
+```bash
+python - << 'EOF'
+from huggingface_hub import login
+login(token="your_token")
+print("HF login successful")
+EOF
+```
+
+### 6. Running the Pipeline
 
 The main entry point is:
 
@@ -104,7 +117,7 @@ The main entry point is:
 python main.py
 ```
 
-### Configuration
+#### Configuration
 
 Pipeline parameters are defined in `config.py`:
 
@@ -115,7 +128,9 @@ CROP_FOLDER = "/path/to/crops"
 
 NUM_FRAMES_PER_CLIP = 20
 FRAME_STEP = 4
-PADDING = 20
+
+CROP_SIZE = 224
+
 PROMPT_CLASS = "cow"
 ```
 
