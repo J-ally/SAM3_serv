@@ -39,11 +39,15 @@ conda activate sam3-pipeline
 
 If you are running this project on Lightning AI (Studio / CloudSpace), skip this step.
 
+---
+
 ### 2. Clone the Repo 
 
 ```bash
 git clone https://github.com/MariusCharles/PFR-ViTCow.git
 ```
+
+---
 
 ### 3. Python Dependencies
 
@@ -78,6 +82,7 @@ pip install -e sam3
 
 The `sam3/` directory must be present **at the same level as this repository** or otherwise available in your `PYTHONPATH`.
 
+---
 
 ### 5. Access Requirements (Hugging Face)
 
@@ -108,6 +113,8 @@ login(token="your_token")
 print("HF login successful")
 EOF
 ```
+
+---
 
 ### 6. Running the Pipeline
 
