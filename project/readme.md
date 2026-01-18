@@ -45,6 +45,7 @@ If you are running this project on Lightning AI (Studio / CloudSpace), skip this
 
 ```bash
 git clone https://github.com/MariusCharles/PFR-ViTCow.git
+cd PFR-ViTCow/project/
 ```
 
 ---
