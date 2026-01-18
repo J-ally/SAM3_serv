@@ -58,12 +58,6 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-If you encounter dependency conflicts, try: 
-
-```bash
-pip install -r requirements_v2.txt
-```
-
 ---
 
 ### 4. External Dependency: SAM3
@@ -83,6 +77,24 @@ pip install -e sam3
 
 The `sam3/` directory must be present in the `project/` directory or otherwise available in your `PYTHONPATH`.
 If you encounter dependency issues at this step, retry the previous step using the alternative requirements file.
+
+---
+
+### 3bis & 4bis. If it fails
+
+Skip this section if everything is working correctly.
+
+If you encounter dependency conflicts (including when running `main.py`), try installing the alternative requirements file:
+
+```bash
+pip install -r requirements_v2.txt
+```
+
+⚠️ **Important:**  
+This will install both the Python dependencies **and** the SAM3 repository as a package.  
+In this setup, SAM3 will be installed inside a `src/` directory.
+
+Keep this in mind when modifying the `max_num_objects` parameter, as the file path to SAM3 may differ from the default setup.
 
 ---
 
@@ -125,10 +137,16 @@ This helps regulate GPU memory usage and allows you to limit how many cows are k
 
 To modify this parameter, we update an internal SAM3 configuration value.
 
-For example, to set `max_num_objects` to 5 (adapt as needed):
+To update the maximum number of objects handled by SAM3, run:
 
 ```bash
-bash update_max_objects.sh 5
+bash update_max_objects.sh <path_to_sam3_repo> <max_num_objects>
+```
+
+For example, to set `max_num_objects` to 5, in a LightningAI setup:
+
+```bash
+./update_max_objects.sh /teamspace/studios/this_studio/PFR-ViTCow/project/sam3 5
 ```
 
 > This modification will later be moved directly into the configuration file.
