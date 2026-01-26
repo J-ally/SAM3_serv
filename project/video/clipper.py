@@ -50,6 +50,9 @@ def extract_clips(
     pbar = tqdm(total=total_clips, desc=f"Clipping {name}", unit="clip")
 
     while True:
+        if not clip_id < 5:
+            break
+        
         ret, frame = cap.read()
         if not ret:
             break

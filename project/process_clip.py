@@ -1,4 +1,5 @@
 import sys
+import os
 import logging
 import torch
 import gc
@@ -19,7 +20,7 @@ def main():
     sam = SAMSession()
 
     try:
-        run_extraction(
+        out_all_paths = run_extraction(
             sam,
             video_path,
             config.CROP_FOLDER,
@@ -32,6 +33,7 @@ def main():
         gc.collect()
 
     logging.info("Finished %s", video_path)
+    print(out_all_paths)
 
 if __name__ == "__main__":
     main()

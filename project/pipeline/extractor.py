@@ -21,6 +21,7 @@ def run_extraction(
 
     obj_ids = first.get("out_obj_ids", [])
 
+    out_all_paths = []
     for obj_id in obj_ids:
         boxes = {}
 
@@ -33,9 +34,11 @@ def run_extraction(
         if not any(boxes.values()):
             continue
 
-        write_cropped(
+        out_path = write_cropped( 
             video_path,
             out_folder,
             boxes,
             obj_id,
         )
+        out_all_paths.append(out_path)
+    return out_all_paths

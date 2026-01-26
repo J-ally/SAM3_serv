@@ -129,6 +129,7 @@ def write_cropped(
 
     fps = cap.get(cv2.CAP_PROP_FPS)
     name = os.path.basename(video_path).replace(".mp4", f"_{obj_id}.mp4")
+    out_path = os.path.join(out_folder, name)
 
     out = cv2.VideoWriter(
         os.path.join(out_folder, name),
@@ -148,3 +149,4 @@ def write_cropped(
 
     cap.release()
     out.release()
+    return out_path
