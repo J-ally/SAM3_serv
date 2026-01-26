@@ -128,7 +128,18 @@ def write_cropped(
         raise IOError(f"Cannot open video: {video_path}")
 
     fps = cap.get(cv2.CAP_PROP_FPS)
-    name = os.path.basename(video_path).replace(".mp4", f"_{obj_id}.mp4")
+    # Trouver la première bbox non-None
+    first_frame_idx = next((idx for idx, bb in bboxes.items() if bb is not None), None)
+    if first_frame_idx is not None:
+        first_bbox = bboxes[first_frame_idx]
+        # Format: x1-y1-x2-y2
+        bbox_str = "_".join(map(str, first_bbox))
+    else:
+        bbox_str = "no_bbox"
+
+    # Créer le nom de fichier avec bbox
+    name = os.path.basename(video_path).replace(".mp4", f"_{bbox_str}.mp4")
+
     out_path = os.path.join(out_folder, name)
 
     out = cv2.VideoWriter(
