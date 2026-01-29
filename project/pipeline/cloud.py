@@ -4,14 +4,16 @@ import logging
 import config
 import re
 
-# Paramètres du serveur SFTP
-SFTP_USER = "sftpiodaa"
-SFTP_HOST = "88.189.55.27"
-SFTP_PORT = 22222
-REMOTE_DIR = "/PACECOWVID/COPTIERE"
-UPLOAD_DIR = "/PACECOWVID/ViTCow_upload"
-LOCAL_TMP_DIR = "/home/kind_boyd/workdir/data"  # dossier local temporaire
-FARM_NAME = "COPTIERE"
+# Import SFTP server params 
+from config import (
+    SFTP_USER,
+    SFTP_HOST,
+    SFTP_PORT,
+    REMOTE_DIR,
+    UPLOAD_DIR,
+    LOCAL_TMP_DIR,
+    FARM_NAME,
+)
 
 
 def list_sftp_videos() -> list:

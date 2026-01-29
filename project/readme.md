@@ -23,7 +23,84 @@ This repository acts as an **orchestration layer** around the official **SAM3** 
 
 ---
 
-## Running the Pipeline
+## Running the Pipeline : On `https://mydocker.centralesupelec.fr`
+
+### 1. Environment
+
+We create a venv to isolate the environment. First install python and dependencies : 
+
+```bash
+sudo apt update && sudo apt install -y python3.12 python3.12-venv libgl1 libglib2.0-0 git
+```
+
+Then, create the environment and download requirements : 
+
+```bash
+python3.12 -m venv .venv && . .venv/bin/activate && pip install --upgrade pip && pip install -r requirements_vm.txt
+```
+
+### 2. Clone the Repo 
+
+```bash
+git clone https://github.com/MariusCharles/PFR-ViTCow.git
+cd PFR-ViTCow/project/
+```
+
+
+### 3. Access Requirements (Hugging Face)
+
+SAM3 is a **gated model** hosted on Hugging Face.  
+Before using this pipeline, you must **request access** and **authenticate locally**.
+
+#### A- Request access to SAM3
+
+You must request access on the official SAM3 Hugging Face page  
+(approval required by Meta / Facebook Research).
+
+> ⚠️ Without approval, the model weights cannot be downloaded.
+
+#### B- Authenticate with your Hugging Face account
+
+Once access is granted, log in locally (change "your_token" with the token obtained on huggingface website):
+
+```bash
+python - << 'EOF'
+from huggingface_hub import login
+login(token="your_token")
+print("HF login successful")
+EOF
+```
+
+
+### 4. Choose `max_num_objects`
+
+You can control the maximum number of objects detected by SAM3 using the `max_num_objects` parameter.  
+This helps regulate GPU memory usage and allows you to limit how many cows are kept per clip.
+
+To modify this parameter, we update an internal SAM3 configuration value. Be careful if you cloned multiple SAM3 repos, to indicate the correct path. 
+
+To update the maximum number of objects handled by SAM3, run:
+
+```bash
+bash update_max_objects.sh <path_to_sam3_repo> <max_num_objects>
+```
+
+For example, to set `max_num_objects` to 10 :
+
+```bash
+bash update_max_objects.sh sam3/ 10
+```
+
+### 5. Running the Pipeline
+
+The main entry point is:
+
+```bash
+python main.py
+```
+
+
+## Running the Pipeline : Locally or on Lightning AI 
 
 ### 1. Environment
 
