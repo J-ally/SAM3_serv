@@ -1,6 +1,5 @@
-INPUT_FOLDER = "/teamspace/studios/this_studio/data"
-CLIP_FOLDER = "/teamspace/studios/this_studio/clip"
-CROP_FOLDER = "/teamspace/studios/this_studio/crop"
+CLIP_FOLDER = "/home/kind_boyd/workdir/clips"
+CROP_FOLDER = "/home/kind_boyd/workdir/crops"
 
 NUM_FRAMES_PER_CLIP = 20
 FRAME_STEP = 4

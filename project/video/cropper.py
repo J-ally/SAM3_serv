@@ -8,20 +8,12 @@ import config
 logger = logging.getLogger(__name__)
 
 
-# ============================================================
-# MASK => BBOX
-# ============================================================
-
 def mask_to_bbox(mask: np.ndarray) -> Optional[Tuple[int, int, int, int]]:
     ys, xs = np.where(mask)
     if len(xs) == 0:
         return None
     return int(xs.min()), int(ys.min()), int(xs.max()), int(ys.max())
 
-
-# ============================================================
-# BBOX UTILS
-# ============================================================
 
 def bbox_size(bbox: Tuple[int, int, int, int]) -> Tuple[int, int]:
     x1, y1, x2, y2 = bbox
@@ -45,10 +37,6 @@ def make_square_bbox(bbox: Tuple[int, int, int, int]) -> Tuple[int, int, int, in
     )
 
 
-# ============================================================
-# CORE CROP
-# ============================================================
-
 def crop_with_clamp(
     frame: np.ndarray,
     bbox: Tuple[int, int, int, int],
@@ -71,10 +59,6 @@ def crop_with_clamp(
     out[oy:oy + crop.shape[0], ox:ox + crop.shape[1]] = crop
     return out
 
-
-# ============================================================
-# PER-FRAME LOGIC
-# ============================================================
 
 def crop_frame(
     frame: np.ndarray,
@@ -108,10 +92,6 @@ def crop_frame(
         config.CROP_SIZE,
     )
 
-
-# ============================================================
-# VIDEO WRITER
-# ============================================================
 
 def write_cropped(
     video_path: str,

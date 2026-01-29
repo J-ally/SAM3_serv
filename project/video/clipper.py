@@ -2,6 +2,7 @@ import cv2
 import os
 import logging
 from tqdm import tqdm
+import random
 
 logger = logging.getLogger(__name__)
 
@@ -12,20 +13,16 @@ def is_daytime_video(filepath):
     Fonctionne avec un chemin complet ou juste le nom du fichier.
     Exemple de nom : 202502052200_D01.mp4
     """
-    filename = os.path.basename(filepath)  
+    filename = os.path.basename(filepath) 
     try:
-        hour_str = filename[-10:-6] 
+        hour_str = filename[8:12] 
         hour = int(hour_str[:2])
-        return 6 <= hour < 18
+        return 9 <= hour < 17
+    
     except Exception as e:
         logging.warning("Impossible de déterminer l'heure pour %s : %s", filename, e)
         return False
 
-    import os
-import cv2
-import random
-from tqdm import tqdm
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +79,8 @@ def extract_clips(
                 frames.append(frame)
 
         if frames:
-            out_path = os.path.join(output_folder, f"{name[:-4]}_clip{clip_id}.mp4")
+            out_path = os.path.join(output_folder, f"{name[:-4]}_clip{clip_id}_start{start_idx}.mp4")
+
             out = cv2.VideoWriter(
                 out_path,
                 cv2.VideoWriter_fourcc(*"mp4v"),
