@@ -77,7 +77,7 @@ EOF
 You can control the maximum number of objects detected by SAM3 using the `max_num_objects` parameter.  
 This helps regulate GPU memory usage and allows you to limit how many cows are kept per clip.
 
-To modify this parameter, we update an internal SAM3 configuration value. Be careful if you cloned multiple SAM3 repos, to indicate the correct path. 
+To modify this parameter, we update an internal SAM3 configuration value. ⚠️ Be careful if you cloned multiple SAM3 repos, to indicate the correct path (usually in the .venv folder). ⚠️
 
 To update the maximum number of objects handled by SAM3, run:
 
@@ -85,10 +85,10 @@ To update the maximum number of objects handled by SAM3, run:
 bash update_max_objects.sh <path_to_sam3_repo> <max_num_objects>
 ```
 
-For example, to set `max_num_objects` to 10 :
+For example, to set `max_num_objects` to 10 on `centrale mydocker` :
 
 ```bash
-bash update_max_objects.sh sam3/ 10
+bash update_max_objects.sh .venv/src/sam3/ 10
 ```
 
 ### 5. Running the Pipeline
