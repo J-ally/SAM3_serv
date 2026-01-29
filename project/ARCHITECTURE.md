@@ -4,66 +4,66 @@
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                    MAIN PIPELINE (main.py)                                    │
+│                                    MAIN PIPELINE (main.py)                                     │
 ├────────────────────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                                │
-│  START                                                                                        │
-│    │                                                                                          │
-│    ├─ list_sftp_videos()                [pipeline/cloud.py]                                 │
-│    │  └─ Returns: list[str] → videos_path                                                   │
-│    │                                                                                          │
-│    └─ FOR EACH video_path in videos_path:                                                   │
-│       │                                                                                       │
-│       ├─ is_daytime_video(video_path)            [video/clipper.py]                         │
-│       │  │                                                                                    │
-│       │  ├─ FALSE → continue (skip)                                                         │
-│       │  └─ TRUE ↓                                                                           │
-│       │                                                                                       │
-│       ├─ download_sftp_video(video_path)         [pipeline/cloud.py]                        │
-│       │  └─ Returns: local_path                                                             │
-│       │                                                                                       │
-│       ├─ extract_clips(                          [video/clipper.py]                         │
-│       │    local_path,                                                                       │
-│       │    config.CLIP_FOLDER,                   [config.py]                                │
-│       │    config.NUM_FRAMES_PER_CLIP,           [config.py]                                │
-│       │    config.FRAME_STEP,                    [config.py]                                │
-│       │    config.NUM_CLIP                       [config.py]                                │
-│       │  )                                                                                    │
-│       │                                                                                       │
-│       ├─ remove_video(local_path)                [pipeline/cloud.py]                        │
-│       │                                                                                       │
-│       └─ FOR EACH clip in config.CLIP_FOLDER:                                               │
-│          │                                                                                    │
-│          ├─ subprocess.run(                      [stdlib]                                    │
-│          │    ["python", "process_clip.py", clip_path],                                     │
-│          │    capture_output=True,                                                          │
-│          │    text=True                                                                      │
-│          │  )                                                                                 │
-│          │  │                                                                                 │
-│          │  ├─ SUBPROCESS: process_clip.py ↓                                                │
-│          │  │  ├─ SAMSession()                   [sam/sam_session.py]                      │
-│          │  │  ├─ run_extraction()               [pipeline/extractor.py]                   │
-│          │  │  └─ Print JSON to stdout                                                      │
-│          │  │                                                                                 │
-│          │  └─ Returns: CompletedProcess                                                    │
-│          │                                                                                    │
-│          ├─ TRY:                                                                            │
-│          │  ├─ json.loads(result.stdout[-1])     [stdlib]                                  │
-│          │  │  └─ Parse: out_all_paths = [str, ...]                                        │
-│          │  │                                                                                 │
-│          │  └─ FOR EACH out_path in out_all_paths:                                          │
-│          │     ├─ upload_video(out_path)         [pipeline/cloud.py]                       │
-│          │     └─ remove_video(out_path)         [pipeline/cloud.py]                       │
-│          │                                                                                    │
-│          ├─ EXCEPT CalledProcessError:                                                     │
-│          │  └─ logging.error(...)                [stdlib]                                  │
-│          │     └─ continue (next clip)                                                      │
-│          │                                                                                    │
-│          └─ FINALLY:                                                                        │
-│             └─ remove_video(clip_path)           [pipeline/cloud.py]                       │
-│                                                                                               │
-│  END                                                                                         │
-│                                                                                               │
+│  START                                                                                         │
+│    │                                                                                           │
+│    ├─ list_sftp_videos()                [pipeline/cloud.py]                                    │
+│    │  └─ Returns: list[str] → videos_path                                                      │
+│    │                                                                                           │
+│    └─ FOR EACH video_path in videos_path:                                                      │
+│       │                                                                                        │
+│       ├─ is_daytime_video(video_path)            [video/clipper.py]                            │
+│       │  │                                                                                     │
+│       │  ├─ FALSE → continue (skip)                                                            │
+│       │  └─ TRUE ↓                                                                             │
+│       │                                                                                        │
+│       ├─ download_sftp_video(video_path)         [pipeline/cloud.py]                           │
+│       │  └─ Returns: local_path                                                                │
+│       │                                                                                        │
+│       ├─ extract_clips(                          [video/clipper.py]                            │
+│       │    local_path,                                                                         │
+│       │    config.CLIP_FOLDER,                   [config.py]                                   │
+│       │    config.NUM_FRAMES_PER_CLIP,           [config.py]                                   │
+│       │    config.FRAME_STEP,                    [config.py]                                   │
+│       │    config.NUM_CLIP                       [config.py]                                   │
+│       │  )                                                                                     │
+│       │                                                                                        │ 
+│       ├─ remove_video(local_path)                [pipeline/cloud.py]                           │
+│       │                                                                                        │
+│       └─ FOR EACH clip in config.CLIP_FOLDER:                                                  │
+│          │                                                                                     │
+│          ├─ subprocess.run(                      [stdlib]                                      │
+│          │    ["python", "process_clip.py", clip_path],                                        │
+│          │    capture_output=True,                                                             │
+│          │    text=True                                                                        │
+│          │  )                                                                                  │
+│          │  │                                                                                  │
+│          │  ├─ SUBPROCESS: process_clip.py ↓                                                   │
+│          │  │  ├─ SAMSession()                   [sam/sam_session.py]                          │
+│          │  │  ├─ run_extraction()               [pipeline/extractor.py]                       │
+│          │  │  └─ Print JSON to stdout                                                         │
+│          │  │                                                                                  │
+│          │  └─ Returns: CompletedProcess                                                       │
+│          │                                                                                     │
+│          ├─ TRY:                                                                               │
+│          │  ├─ json.loads(result.stdout[-1])     [stdlib]                                      │
+│          │  │  └─ Parse: out_all_paths = [str, ...]                                            │
+│          │  │                                                                                  │
+│          │  └─ FOR EACH out_path in out_all_paths:                                             │
+│          │     ├─ upload_video(out_path)         [pipeline/cloud.py]                           │
+│          │     └─ remove_video(out_path)         [pipeline/cloud.py]                           │
+│          │                                                                                     │
+│          ├─ EXCEPT CalledProcessError:                                                         │
+│          │  └─ logging.error(...)                [stdlib]                                      │
+│          │     └─ continue (next clip)                                                         │
+│          │                                                                                     │
+│          └─ FINALLY:                                                                           │
+│             └─ remove_video(clip_path)           [pipeline/cloud.py]                           │
+│                                                                                                │
+│  END                                                                                           │
+│                                                                                                │
 └────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -318,3 +318,6 @@ config.py:
 ├─ CROP_FOLDER = "/teamspace/studios/this_studio/crop"
 └─ PROMPT_CLASS = "cow"
 ```
+
+---
+Généré à l'aide du copilot VScode
