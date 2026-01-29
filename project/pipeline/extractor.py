@@ -13,7 +13,17 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 def run_extraction(sam, video_path: str, out_folder: str, prompt: str) -> None:
-    """Run SAM-based object extraction and video cropping on a single video."""
+    """Run SAM-based object extraction and video cropping on a single video.
+    
+    Args:
+        sam: SAM session object for video processing.
+        video_path (str): Path to the input video file.
+        out_folder (str): Output folder where cropped videos will be saved.
+        prompt (str): Text prompt for object detection and segmentation.
+    
+    Returns:
+        None: Outputs JSON list of cropped video paths to stdout.
+    """
     logger.info("Starting extraction for %s", video_path)
 
     sid = sam.start(video_path)

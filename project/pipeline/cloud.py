@@ -14,7 +14,12 @@ LOCAL_TMP_DIR = "/home/kind_boyd/workdir/data"  # dossier local temporaire
 FARM_NAME = "COPTIERE"
 
 
-def list_sftp_videos():
+def list_sftp_videos() -> list:
+    """Lists all video files from SFTP server folders.
+    
+    Returns:
+        list: List of video filenames found on the SFTP server.
+    """
     folder_pattern = re.compile(r"^D\d{2}$")
     video_pattern = re.compile(r"\.mp4$")
 
@@ -60,7 +65,15 @@ def list_sftp_videos():
     return all_videos
 
 
-def download_sftp_video(remote_path):
+def download_sftp_video(remote_path: str) -> str:
+    """Downloads a video file from the SFTP server.
+    
+    Args:
+        remote_path (str): The remote path of the video file on the SFTP server.
+    
+    Returns:
+        str: The local path where the video was downloaded.
+    """
     filename = os.path.basename(remote_path)
     logging.info("Downloading video %s from %s", filename, REMOTE_DIR)
     local_path = os.path.join(LOCAL_TMP_DIR, filename)
@@ -71,12 +84,21 @@ def download_sftp_video(remote_path):
     subprocess.run(cmd, shell=True, check=True)
     return local_path
 
-def remove_video(local_path):
-    """Supprime un fichier vidéo en vérifiant qu'il existe."""
+def remove_video(local_path: str) -> None:
+    """Removes a video file if it exists.
+    
+    Args:
+        local_path (str): The local path of the video file to remove.
+    """
     if os.path.exists(local_path):
         os.remove(local_path)
 
-def mkdir_sftp(remote_dir):
+def mkdir_sftp(remote_dir: str) -> None:
+    """Creates a directory on the SFTP server if it doesn't exist.
+    
+    Args:
+        remote_dir (str): The remote directory path to create.
+    """
     folders = remote_dir.strip("/").split("/")
 
     path = ""
@@ -98,8 +120,16 @@ def mkdir_sftp(remote_dir):
             # Dossier existe → ne rien faire, ne pas loguer
             pass
 
-def upload_video(local_path, PREFIXE=FARM_NAME):
-    "Télécharge la vidéo sur le cloud avec un préfixe dans le nom de fichier"
+def upload_video(local_path: str, PREFIXE: str = FARM_NAME) -> str:
+    """Uploads a video file to the SFTP server with a prefix in the filename.
+    
+    Args:
+        local_path (str): The local path of the video file to upload.
+        PREFIXE (str): The prefix to add to the filename. Defaults to FARM_NAME.
+    
+    Returns:
+        str: The local path of the uploaded video.
+    """
     original_filename = os.path.basename(local_path)
     
     filename = f"{PREFIXE}_{original_filename}"

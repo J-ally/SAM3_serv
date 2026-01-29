@@ -9,6 +9,14 @@ logger = logging.getLogger(__name__)
 
 
 def mask_to_bbox(mask: np.ndarray) -> Optional[Tuple[int, int, int, int]]:
+    """Convert a binary mask to a bounding box.
+    
+    Args:
+        mask (np.ndarray): Binary mask array.
+    
+    Returns:
+        Optional[Tuple[int, int, int, int]]: Bounding box as (x1, y1, x2, y2) or None if empty.
+    """
     ys, xs = np.where(mask)
     if len(xs) == 0:
         return None
@@ -16,11 +24,27 @@ def mask_to_bbox(mask: np.ndarray) -> Optional[Tuple[int, int, int, int]]:
 
 
 def bbox_size(bbox: Tuple[int, int, int, int]) -> Tuple[int, int]:
+    """Calculate the width and height of a bounding box.
+    
+    Args:
+        bbox (Tuple[int, int, int, int]): Bounding box as (x1, y1, x2, y2).
+    
+    Returns:
+        Tuple[int, int]: Width and height as (w, h).
+    """
     x1, y1, x2, y2 = bbox
     return x2 - x1, y2 - y1
 
 
 def make_square_bbox(bbox: Tuple[int, int, int, int]) -> Tuple[int, int, int, int]:
+    """Convert a bounding box to a square bounding box.
+    
+    Args:
+        bbox (Tuple[int, int, int, int]): Bounding box as (x1, y1, x2, y2).
+    
+    Returns:
+        Tuple[int, int, int, int]: Square bounding box as (x1, y1, x2, y2).
+    """
     x1, y1, x2, y2 = bbox
     w, h = bbox_size(bbox)
     side = max(w, h)
@@ -42,6 +66,16 @@ def crop_with_clamp(
     bbox: Tuple[int, int, int, int],
     out_size: int,
 ) -> np.ndarray:
+    """Crop a frame with bounding box and pad with zeros if needed.
+    
+    Args:
+        frame (np.ndarray): Input frame to crop.
+        bbox (Tuple[int, int, int, int]): Bounding box as (x1, y1, x2, y2).
+        out_size (int): Output size for the cropped region.
+    
+    Returns:
+        np.ndarray: Cropped frame padded to out_size x out_size.
+    """
     fh, fw, _ = frame.shape
     x1, y1, x2, y2 = bbox
 
@@ -64,6 +98,15 @@ def crop_frame(
     frame: np.ndarray,
     bbox: Optional[Tuple[int, int, int, int]],
 ) -> np.ndarray:
+    """Crop a frame using a bounding box and resize to CROP_SIZE.
+    
+    Args:
+        frame (np.ndarray): Input frame to crop.
+        bbox (Optional[Tuple[int, int, int, int]]): Bounding box as (x1, y1, x2, y2) or None.
+    
+    Returns:
+        np.ndarray: Cropped and resized frame of size CROP_SIZE x CROP_SIZE x 3.
+    """
 
     if bbox is None:
         return np.zeros((config.CROP_SIZE, config.CROP_SIZE, 3), dtype=np.uint8)
@@ -98,7 +141,18 @@ def write_cropped(
     out_folder: str,
     bboxes: Dict[int, Optional[Tuple[int, int, int, int]]],
     obj_id: int,
-) -> None:
+) -> str:
+    """Write a cropped video based on bounding boxes for a specific object.
+    
+    Args:
+        video_path (str): Path to the input video file.
+        out_folder (str): Output folder where the cropped video will be saved.
+        bboxes (Dict[int, Optional[Tuple[int, int, int, int]]]): Frame-to-bbox mapping.
+        obj_id (int): Object ID for naming the output file.
+    
+    Returns:
+        str: Path to the output cropped video file.
+    """
 
     os.makedirs(out_folder, exist_ok=True)
     logger.info("Writing cropped video for object %s", obj_id)

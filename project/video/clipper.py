@@ -6,12 +6,21 @@ import random
 
 logger = logging.getLogger(__name__)
 
-def is_daytime_video(filepath, start: int, end:int):
-    """
-    Vérifie si la vidéo se situe dans la tranche "jour" (06h00 - 18h00)
-    d'après les 4 chiffres correspondant à l'heure dans le nom du fichier.
-    Fonctionne avec un chemin complet ou juste le nom du fichier.
-    Exemple de nom : 202502052200_D01.mp4
+def is_daytime_video(filepath: str, start: int, end: int) -> bool:
+    """Check if video is in daytime hours based on filename timestamp.
+    
+    Verifies if the video falls within the daytime range (default 06:00 - 18:00)
+    based on the 4 digits representing the hour in the filename.
+    Works with full paths or just the filename.
+    Example filename: 202502052200_D01.mp4
+    
+    Args:
+        filepath (str): Path to the video file or filename.
+        start (int): Start hour for daytime range (24-hour format).
+        end (int): End hour for daytime range (24-hour format).
+    
+    Returns:
+        bool: True if the video is within daytime hours, False otherwise.
     """
     filename = os.path.basename(filepath) 
     try:
@@ -36,11 +45,14 @@ def extract_clips(
     """Extract a fixed number of clips randomly from a video.
 
     Args:
-        video_path: Path to the input video.
-        output_folder: Directory where output clips will be written.
-        num_frames: Number of frames per output clip.
-        step: Frame sampling step.
-        num_clips: Number of clips to extract randomly.
+        video_path (str): Path to the input video.
+        output_folder (str): Directory where output clips will be written.
+        num_frames (int): Number of frames per output clip.
+        step (int): Frame sampling step.
+        num_clips (int): Number of clips to extract randomly.
+    
+    Returns:
+        None: Clips are written to output_folder.
     """
     os.makedirs(output_folder, exist_ok=True)
     name = os.path.basename(video_path)
