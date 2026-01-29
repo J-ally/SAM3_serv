@@ -287,11 +287,11 @@ LOCAL_TMP_DIR = "/home/kind_boyd/workdir/data" [Local storage]
 ```
 SFTP Server
     │
-    ├─ list_sftp_videos()  ────────────────► [Get list of videos]
+    ├─ list_sftp_videos()  ──────────────────► [Get list of videos]
     │
     ├─ for each video:
     │   │
-    │   ├─ download_sftp_video()  ──────────► Local Disk
+    │   ├─ download_sftp_video()  ───────────► Local Disk
     │   │
     │   ├─ extract_clips()  ─────────────────► Local Clips
     │   │                                       (temporary)
@@ -302,7 +302,7 @@ SFTP Server
     │   └─ upload_video()  ──────────────────► SFTP Server
     │       (upload cropped)
     │
-    └─ remove_video()  ────────────────────► Cleanup
+    └─ remove_video()  ──────────────────────► Cleanup
 ```
 
 ---
