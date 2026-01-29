@@ -8,3 +8,6 @@ NUM_CLIP = 10
 CROP_SIZE = 224
 
 PROMPT_CLASS = "cow"
+
+START = 9
+END = 17

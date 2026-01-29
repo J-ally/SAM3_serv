@@ -16,7 +16,7 @@ logging.info("Pipeline started")
 videos_path = list_sftp_videos()
 
 for video_path in videos_path:
-    if not is_daytime_video(video_path):
+    if not is_daytime_video(video_path, config.START, config.END):
         logging.info("Skipping night video %s", video_path)
         continue
 

@@ -6,7 +6,7 @@ import random
 
 logger = logging.getLogger(__name__)
 
-def is_daytime_video(filepath):
+def is_daytime_video(filepath, start: int, end:int):
     """
     Vérifie si la vidéo se situe dans la tranche "jour" (06h00 - 18h00)
     d'après les 4 chiffres correspondant à l'heure dans le nom du fichier.
@@ -17,7 +17,7 @@ def is_daytime_video(filepath):
     try:
         hour_str = filename[8:12] 
         hour = int(hour_str[:2])
-        return 9 <= hour < 17
+        return start <= hour < end
     
     except Exception as e:
         logging.warning("Impossible de déterminer l'heure pour %s : %s", filename, e)
@@ -31,7 +31,7 @@ def extract_clips(
     output_folder: str,
     num_frames: int,
     step: int,
-    num_clips: int
+    num_clips: int,
 ) -> None:
     """Extract a fixed number of clips randomly from a video.
 
