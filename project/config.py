@@ -25,8 +25,11 @@ NUM_CLIP = 10
 CROP_SIZE = 224
 PROMPT_CLASS = "cow"
 
-START = 9
-END = 17
+# Safety margin for bounding box expansion (fraction of max side)
+SAFETY_MARGIN = 0.1  # 10% margin
+
+START = 15
+END = 16
 
 # creates folders automatically 
 for d in [CLIP_FOLDER, CROP_FOLDER, LOCAL_TMP_DIR]:

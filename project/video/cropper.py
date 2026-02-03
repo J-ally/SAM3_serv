@@ -112,28 +112,54 @@ def crop_frame(
         return np.zeros((config.CROP_SIZE, config.CROP_SIZE, 3), dtype=np.uint8)
 
     w, h = bbox_size(bbox)
+    crop_size = config.CROP_SIZE
 
-    if max(w, h) > config.CROP_SIZE:
-        square_bbox = make_square_bbox(bbox)
+    # Step 0: Expand bbox by safety margin
+    x1, y1, x2, y2 = bbox
+    side = max(w, h)
+    margin = int(side * config.SAFETY_MARGIN)
+    # Expand coordinates outward, clamp to frame size
+    fh, fw = frame.shape[0], frame.shape[1]
+    x1m = max(0, x1 - margin)
+    y1m = max(0, y1 - margin)
+    x2m = min(fw, x2 + margin)
+    y2m = min(fh, y2 + margin)
+    bbox_margin = (x1m, y1m, x2m, y2m)
+
+    # Step 1: Make bbox square if not already
+    w, h = bbox_size(bbox_margin)
+    if w != h:
         side = max(w, h)
-
-        square_crop = crop_with_clamp(
-            frame,
-            square_bbox,
-            side,
+        cx = (bbox_margin[0] + bbox_margin[2]) // 2
+        cy = (bbox_margin[1] + bbox_margin[3]) // 2
+        half = side // 2
+        square_bbox = (
+            cx - half,
+            cy - half,
+            cx - half + side,
+            cy - half + side,
         )
+    else:
+        square_bbox = bbox_margin
+        side = w  # == h
 
-        return cv2.resize(
-            square_crop,
-            (config.CROP_SIZE, config.CROP_SIZE),
-            interpolation=cv2.INTER_LINEAR,
+    # Step 2: If square bbox is smaller than crop_size, expand symmetrically
+    if side < crop_size:
+        cx = (square_bbox[0] + square_bbox[2]) // 2
+        cy = (square_bbox[1] + square_bbox[3]) // 2
+        half = crop_size // 2
+        expanded_bbox = (
+            cx - half,
+            cy - half,
+            cx - half + crop_size,
+            cy - half + crop_size,
         )
-
-    return crop_with_clamp(
-        frame,
-        bbox,
-        config.CROP_SIZE,
-    )
+        crop = crop_with_clamp(frame, expanded_bbox, crop_size)
+        return crop
+    else:
+        # Step 3: Crop and resize to crop_size
+        crop = crop_with_clamp(frame, square_bbox, side)
+        return cv2.resize(crop, (crop_size, crop_size), interpolation=cv2.INTER_LINEAR)
 
 
 def write_cropped(
@@ -162,7 +188,7 @@ def write_cropped(
         raise IOError(f"Cannot open video: {video_path}")
 
     fps = cap.get(cv2.CAP_PROP_FPS)
-    # Trouver la première bbox non-None
+    # Find first frame with a bbox for naming 
     first_frame_idx = next((idx for idx, bb in bboxes.items() if bb is not None), None)
     if first_frame_idx is not None:
         first_bbox = bboxes[first_frame_idx]
@@ -171,7 +197,7 @@ def write_cropped(
     else:
         bbox_str = "no_bbox"
 
-    # Créer le nom de fichier avec bbox
+    # Create filename with bbox
     name = os.path.basename(video_path).replace(".mp4", f"_{bbox_str}.mp4")
 
     out_path = os.path.join(out_folder, name)
