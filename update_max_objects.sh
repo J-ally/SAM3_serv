@@ -29,14 +29,17 @@ if ! grep -Eq '^[[:space:]]*max_num_objects[[:space:]]*=[[:space:]]*[0-9]+' "$FI
 fi
 
 # =========================
-# Replace ONLY the config line
+# Replace BOTH the config lines
 # =========================
 sed -i -E "s/^([[:space:]]*)max_num_objects[[:space:]]*=[[:space:]]*[0-9]+/\1max_num_objects = ${MAX_OBJECTS}/" "$FILE"
+sed -i -E "s/^([[:space:]]*)num_obj_for_compile[[:space:]]*=[[:space:]]*[0-9]+/\1num_obj_for_compile = 4/" "$FILE"
 
 # =========================
 # Show result
 # =========================
-LINE_CONTENT=$(grep -E '^[[:space:]]*max_num_objects[[:space:]]*=' "$FILE")
-echo "Updated line: $LINE_CONTENT"
+LINE_CONTENT1=$(grep -E '^[[:space:]]*max_num_objects[[:space:]]*=' "$FILE")
+LINE_CONTENT2=$(grep -E '^[[:space:]]*num_obj_for_compile[[:space:]]*=' "$FILE")
+echo "Updated line: $LINE_CONTENT1"
+echo "Updated line: $LINE_CONTENT2"
 
 echo "Modification completed successfully."

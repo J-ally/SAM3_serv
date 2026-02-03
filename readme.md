@@ -43,7 +43,7 @@ python3.12 -m venv .venv && . .venv/bin/activate && pip install --upgrade pip &&
 
 ```bash
 git clone https://github.com/MariusCharles/PFR-ViTCow.git
-cd PFR-ViTCow/project/
+cd PFR-ViTCow/
 ```
 
 
@@ -122,7 +122,7 @@ If you are running this project on Lightning AI (Studio / CloudSpace), skip this
 
 ```bash
 git clone https://github.com/MariusCharles/PFR-ViTCow.git
-cd PFR-ViTCow/project/
+cd PFR-ViTCow/
 ```
 
 ---
@@ -152,7 +152,7 @@ git clone https://github.com/facebookresearch/sam3.git
 pip install -e sam3
 ```
 
-The `sam3/` directory must be present in the `project/` directory or otherwise available in your `PYTHONPATH`.
+The `sam3/` directory must be present in the directory or otherwise available in your `PYTHONPATH`.
 If you encounter dependency issues at this step, retry the previous step using the alternative requirements file.
 
 ---
@@ -223,7 +223,7 @@ bash update_max_objects.sh <path_to_sam3_repo> <max_num_objects>
 For example, to set `max_num_objects` to 5, in a LightningAI setup:
 
 ```bash
-bash update_max_objects.sh /teamspace/studios/this_studio/PFR-ViTCow/project/sam3 5
+bash update_max_objects.sh /teamspace/studios/this_studio/PFR-ViTCow/sam3 5
 ```
 
 > This modification will later be moved directly into the configuration file.
