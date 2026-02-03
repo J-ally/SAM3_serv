@@ -1,5 +1,7 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates. All Rights Reserved
 
+# pyre-unsafe
+
 import datetime
 import logging
 import math
@@ -119,7 +121,7 @@ class Sam3VideoBase(nn.Module):
         if max_num_objects > 0:
             num_obj_for_compile = math.ceil(max_num_objects / self.world_size)
         else:
-            max_num_objects = 10000  # no limit
+            max_num_objects = 10  # no limit
             num_obj_for_compile = 16
         logger.info(f"setting {max_num_objects=} and {num_obj_for_compile=}")
         self.max_num_objects = max_num_objects

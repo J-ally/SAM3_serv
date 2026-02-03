@@ -1,7 +1,11 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates. All Rights Reserved
 
+# pyre-unsafe
+
 import os
 from typing import Optional
+
+import pkg_resources
 
 import torch
 import torch.nn as nn
@@ -580,9 +584,10 @@ def build_sam3_image_model(
         A SAM3 image model
     """
     if bpe_path is None:
-        bpe_path = os.path.join(
-            os.path.dirname(__file__), "..", "assets", "bpe_simple_vocab_16e6.txt.gz"
+        bpe_path = pkg_resources.resource_filename(
+            "sam3", "assets/bpe_simple_vocab_16e6.txt.gz"
         )
+
     # Create visual components
     compile_mode = "default" if compile else None
     vision_encoder = _create_vision_backbone(
@@ -668,8 +673,8 @@ def build_sam3_video_model(
         Sam3VideoInferenceWithInstanceInteractivity: The instantiated dense tracking model
     """
     if bpe_path is None:
-        bpe_path = os.path.join(
-            os.path.dirname(__file__), "..", "assets", "bpe_simple_vocab_16e6.txt.gz"
+        bpe_path = pkg_resources.resource_filename(
+            "sam3", "assets/bpe_simple_vocab_16e6.txt.gz"
         )
 
     # Build Tracker module
