@@ -198,7 +198,7 @@ def write_cropped(
         bbox_str = "no_bbox"
 
     # Create filename with bbox
-    name = os.path.basename(video_path).replace(".mp4", f"_{bbox_str}.mp4")
+    name = os.path.basename(video_path).replace(".mp4", f"_start{bbox_str}.mp4")
 
     out_path = os.path.join(out_folder, name)
 

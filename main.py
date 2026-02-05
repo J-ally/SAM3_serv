@@ -3,7 +3,7 @@ import subprocess
 import logging
 import config
 from video.clipper import extract_clips, is_daytime_video
-from pipeline.cloud import list_sftp_videos, download_sftp_video, remove_video, upload_video
+from pipeline.cloud import list_sftp_videos, download_sftp_video, remove_video, upload_video, check_if_exists
 import json
 
 logging.basicConfig(
@@ -13,6 +13,22 @@ logging.basicConfig(
 )
 
 logging.info("Pipeline started")
+
+# Nettoyage 
+def clean_mp4_files(folder_path: str):
+    if os.path.exists(folder_path):
+        for f in os.listdir(folder_path):
+            if f.lower().endswith(".mp4"):
+                file_path = os.path.join(folder_path, f)
+                try:
+                    os.unlink(file_path)
+                except Exception as e:
+                    logging.error(f"Erreur lors de la suppression de {file_path}: {e}")
+
+clean_mp4_files(config.CLIP_FOLDER)
+clean_mp4_files(config.CROP_FOLDER)
+
+
 videos_path = list_sftp_videos()
 
 for video_path in videos_path:
@@ -32,9 +48,19 @@ for video_path in videos_path:
 
     remove_video(local_path)
 
-    for clip in sorted(os.listdir(config.CLIP_FOLDER)):
+    clips_to_process = [clip for clip in sorted(os.listdir(config.CLIP_FOLDER))]
+    processed_count = 0
+
+    for clip in clips_to_process:
         if not clip.lower().endswith(".mp4"):
             continue
+
+        # Vérifier si le clip a déjà été traité
+        if check_if_exists(clip):
+            logging.info("Clip %s already processed, skipping.", clip)
+            continue
+
+        processed_count += 1
 
         clip_path = os.path.join(config.CLIP_FOLDER, clip)
         logging.info("Processing clip %s", clip_path)
@@ -67,5 +93,9 @@ for video_path in videos_path:
             remove_video(clip_path)
 
     logging.info("Finished video %s", os.path.basename(local_path))
+
+    logging.info("Processing complete: %d clips processed, %d clips skipped.",
+             processed_count,len(clips_to_process) - processed_count)
+
 
 logging.info("Pipeline finished")
