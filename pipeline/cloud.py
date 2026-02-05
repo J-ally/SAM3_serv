@@ -100,32 +100,32 @@ def remove_video(local_path: str) -> None:
     if os.path.exists(local_path):
         os.remove(local_path)
 
+
+CREATED_FOLDERS = set()
+
 def mkdir_sftp(remote_dir: str) -> None:
-    """Creates a directory on the SFTP server if it doesn't exist.
+    if remote_dir in CREATED_FOLDERS:
+        return
     
-    Args:
-        remote_dir (str): The remote directory path to create.
-    """
     folders = remote_dir.strip("/").split("/")
-
-    path = ""
-    if remote_dir.startswith("/"):
-        path = "/"
-
+    cmds = []
+    current_path = ""
     for folder in folders:
-        path = os.path.join(path, folder)
+        current_path += f"/{folder}"
+        cmds.append(f"-mkdir \"{current_path}\"")
+    
+    batch_cmds = "\n".join(cmds) + "\nexit"
+    cmd = f"echo '{batch_cmds}' | sftp -b - -P {SFTP_PORT} {SFTP_USER}@{SFTP_HOST}"
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    
+    if result.returncode == 0:
+        logging.info("Dossier %s prêt (créé ou existant) ", remote_dir)
+        CREATED_FOLDERS.add(remote_dir)
+    else:
+        logging.error("Erreur de création du dossier %s (Code %d) : %s", 
+                      remote_dir, result.returncode, result.stderr)
+        
 
-        # Vérifier si le dossier existe
-        check_cmd = f"echo 'ls \"{path}\"\nexit' | sftp -P {SFTP_PORT} {SFTP_USER}@{SFTP_HOST}"
-        result = subprocess.run(check_cmd, shell=True, capture_output=True, text=True)
-
-        if result.returncode != 0 or "No such file" in result.stderr or "No such file" in result.stdout or "not found" in result.stderr or "Can't ls" in result.stderr:
-            mkdir_cmd = f"echo 'mkdir \"{path}\"\nexit' | sftp -P {SFTP_PORT} {SFTP_USER}@{SFTP_HOST}"
-            subprocess.run(mkdir_cmd, shell=True, check=True)
-            logging.info("Dossier %s créé", path)
-        else:
-            # Dossier existe → ne rien faire, ne pas loguer
-            pass
 
 def upload_video(local_path: str, alias: str) -> str:
     """Uploads a video file to the SFTP server with a prefix in the filename.
