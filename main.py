@@ -59,7 +59,10 @@ for iteration in range(1000):
 
     remove_video(local_path)
 
-    for clip in sorted(os.listdir(config.CLIP_FOLDER)):
+    clips_to_process = [clip for clip in sorted(os.listdir(config.CLIP_FOLDER))]
+    processed_count = 0
+
+    for clip in clips_to_process:
         if not clip.lower().endswith(".mp4"):
             continue
 
@@ -67,6 +70,8 @@ for iteration in range(1000):
         if check_if_exists(clip):
             logging.info("Clip %s already processed, skipping.", clip)
             continue
+
+        processed_count += 1
 
         clip_path = os.path.join(config.CLIP_FOLDER, clip)
         logging.info("Processing clip %s", clip_path)
@@ -83,6 +88,7 @@ for iteration in range(1000):
             json_line = result.stdout.strip().splitlines()[-1]
             out_all_paths = json.loads(json_line)
 
+            logging.info("out_all_paths: %s", out_all_paths)
             for out_path in out_all_paths:
                 upload_video(out_path, alias)
                 remove_video(out_path)
