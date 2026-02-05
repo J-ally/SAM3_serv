@@ -41,6 +41,7 @@ def extract_clips(
     num_frames: int,
     step: int,
     num_clips: int,
+    alias: str,
 ) -> None:
     """Extract a fixed number of clips randomly from a video.
 
@@ -50,6 +51,7 @@ def extract_clips(
         num_frames (int): Number of frames per output clip.
         step (int): Frame sampling step.
         num_clips (int): Number of clips to extract randomly.
+        alias (str): Alias of the farm, used as prefix in clip filenames.
     
     Returns:
         None: Clips are written to output_folder.
@@ -91,7 +93,7 @@ def extract_clips(
                 frames.append(frame)
 
         if frames:
-            out_path = os.path.join(output_folder, f"{name[:-4]}_clip{clip_id}_start{start_idx}.mp4")
+            out_path = os.path.join(output_folder, f"{alias}_{name[:-4]}_clip{clip_id}_start{start_idx}.mp4")
 
             out = cv2.VideoWriter(
                 out_path,

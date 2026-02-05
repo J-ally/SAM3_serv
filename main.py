@@ -5,16 +5,16 @@ import config
 from video.clipper import extract_clips, is_daytime_video
 from pipeline.cloud import list_sftp_videos, download_sftp_video, remove_video, upload_video, check_if_exists
 import json
+import random
 
 logging.basicConfig(
     filename="pipeline.log",
     level=logging.INFO,
-    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+    format="%(asctime)s | %(levelname)s | %(message)s",
 )
 
 logging.info("Pipeline started")
 
-# Nettoyage 
 def clean_mp4_files(folder_path: str):
     if os.path.exists(folder_path):
         for f in os.listdir(folder_path):
@@ -28,30 +28,38 @@ def clean_mp4_files(folder_path: str):
 clean_mp4_files(config.CLIP_FOLDER)
 clean_mp4_files(config.CROP_FOLDER)
 
+videos_path = list_sftp_videos(config.FARM_NAMES)
 
-videos_path = list_sftp_videos()
+# Sauvegarder videos_path avant filtrage
+with open("videos_before_filter.json", "w") as f:
+    json.dump(videos_path, f, indent=2)
 
-for video_path in videos_path:
-    if not is_daytime_video(video_path, config.START, config.END):
-        logging.info("Skipping night video %s", video_path)
-        continue
+videos_path = [path for path in videos_path if is_daytime_video(path.get("filename", ""), config.START, config.END)]
 
-    local_path = download_sftp_video(video_path)
+# Sauvegarder videos_path après filtrage
+with open("videos_after_filter.json", "w") as f:
+    json.dump(videos_path, f, indent=2)
+
+random.shuffle(videos_path)
+
+for iteration in range(1000):
+    video_path = random.choice(videos_path)
+    alias = video_path["alias"]
+    
+    local_path = download_sftp_video(video_path["filename"], alias)
 
     extract_clips(
         local_path,
         config.CLIP_FOLDER,
         config.NUM_FRAMES_PER_CLIP,
         config.FRAME_STEP,
-        config.NUM_CLIP
+        config.NUM_CLIP,
+        alias,
     )
 
     remove_video(local_path)
 
-    clips_to_process = [clip for clip in sorted(os.listdir(config.CLIP_FOLDER))]
-    processed_count = 0
-
-    for clip in clips_to_process:
+    for clip in sorted(os.listdir(config.CLIP_FOLDER)):
         if not clip.lower().endswith(".mp4"):
             continue
 
@@ -59,8 +67,6 @@ for video_path in videos_path:
         if check_if_exists(clip):
             logging.info("Clip %s already processed, skipping.", clip)
             continue
-
-        processed_count += 1
 
         clip_path = os.path.join(config.CLIP_FOLDER, clip)
         logging.info("Processing clip %s", clip_path)
@@ -79,7 +85,7 @@ for video_path in videos_path:
 
             logging.info("out_all_paths: %s", out_all_paths)
             for out_path in out_all_paths:
-                upload_video(out_path)
+                upload_video(out_path, alias)
                 remove_video(out_path)
 
         except subprocess.CalledProcessError as e:
@@ -93,9 +99,5 @@ for video_path in videos_path:
             remove_video(clip_path)
 
     logging.info("Finished video %s", os.path.basename(local_path))
-
-    logging.info("Processing complete: %d clips processed, %d clips skipped.",
-             processed_count,len(clips_to_process) - processed_count)
-
 
 logging.info("Pipeline finished")
