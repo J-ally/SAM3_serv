@@ -86,6 +86,7 @@ def extract_clips(
 
     for start_idx in start_indices:
         clip_id = all_start_indices.index(start_idx) # Numéro du clip parmi tous les indices possibles
+        frames = []
         cap.set(cv2.CAP_PROP_POS_FRAMES, start_idx)
         for _ in range(num_frames * step):
             ret, frame = cap.read()
