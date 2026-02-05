@@ -99,5 +99,7 @@ for iteration in range(1000):
             remove_video(clip_path)
 
     logging.info("Finished video %s", os.path.basename(local_path))
+    logging.info("Processing complete: %d clips processed, %d clips skipped.",
+             processed_count,len(clips_to_process) - processed_count)
 
 logging.info("Pipeline finished")
