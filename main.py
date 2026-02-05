@@ -83,7 +83,6 @@ for iteration in range(1000):
             json_line = result.stdout.strip().splitlines()[-1]
             out_all_paths = json.loads(json_line)
 
-            logging.info("out_all_paths: %s", out_all_paths)
             for out_path in out_all_paths:
                 upload_video(out_path, alias)
                 remove_video(out_path)
