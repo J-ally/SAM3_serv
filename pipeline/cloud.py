@@ -139,14 +139,12 @@ def upload_video(local_path: str, alias: str) -> str:
     """
     original_filename = os.path.basename(local_path)
     
-    filename = f"{alias}_{original_filename}"
-    
     remote_dir_full = f"{UPLOAD_DIR}/{alias}"
-    logging.info("Uploading video %s to %s", filename, remote_dir_full)
+    logging.info("Uploading video %s to %s", original_filename, remote_dir_full)
     
     mkdir_sftp(remote_dir_full)
 
-    put_cmd = f"echo 'put \"{local_path}\" \"{remote_dir_full}/{filename}\"\nexit' | sftp -P {SFTP_PORT} {SFTP_USER}@{SFTP_HOST}"
+    put_cmd = f"echo 'put \"{local_path}\" \"{remote_dir_full}/{original_filename}\"\nexit' | sftp -P {SFTP_PORT} {SFTP_USER}@{SFTP_HOST}"
     subprocess.run(put_cmd, shell=True, check=True)
 
     return local_path
