@@ -1,5 +1,5 @@
 OUTPUT_DIR="/teamspace/studios/this_studio/PFR-ViTCow/results/pretrain_template"
-DATA_PATH="/teamspace/studios/this_studio/PFR-ViTCow/Vitcow_upload/train.csv"
+DATA_PATH="/teamspace/studios/this_studio/PFR-ViTCow/pretraining_dataset/train.csv"
 NUM_GPUS=8
 NUM_NODES=8
 NODE_RANK=0

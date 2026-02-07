@@ -1,5 +1,5 @@
 OUTPUT_DIR="/teamspace/studios/this_studio/PFR-ViTCow/results/testing_1GPU_1EPOCH"
-DATA_PATH="/teamspace/studios/this_studio/PFR-ViTCow/Vitcow_upload/train.csv"
+DATA_PATH="/teamspace/studios/this_studio/PFR-ViTCow/pretraining_dataset/train.csv"
 
 OMP_NUM_THREADS=1 \
 python -m torch.distributed.launch \
