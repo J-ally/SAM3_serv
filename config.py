@@ -14,7 +14,8 @@ FARM_NAMES = {
             "BUISSON": REMOTE_DIR + "/BUISSON/20241016 - BUISSON/CUT",
             "COPTIERE": REMOTE_DIR + "/COPTIERE",
             "CORDEMAIS": REMOTE_DIR + "/CORDEMAIS",
-            "CYPRES": REMOTE_DIR + "/CYPRES"  
+            "CYPRES": REMOTE_DIR + "/CYPRES",
+            "SAULAIE": REMOTE_DIR + "/SAULAIE/20250327 - Saulaie - Regis Bedouet"
             }
 
 # FOLDER MANAGEMENT 
