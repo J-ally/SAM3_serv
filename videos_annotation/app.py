@@ -4,7 +4,7 @@ import os
 
 app = Flask(__name__)
 
-VIDEO_FOLDER = os.path.join("static", "videos/h264")
+VIDEO_FOLDER = os.path.join("static", "h264")
 CSV_FILE = "annotations.csv"
 
 def get_next_video():
