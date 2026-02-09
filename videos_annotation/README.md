@@ -4,6 +4,8 @@ Annotate manually the cow's behaviour.
 ### 1-Requirements 
 Download the following packages before launching the tool.
 ```
+conda create --name video_annotator python=3.12
+conda activate video_annotator
 pip install flask
 pip install ffmpeg-python
 ```
