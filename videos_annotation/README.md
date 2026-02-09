@@ -11,8 +11,8 @@ pip install ffmpeg-python
 ```
 
 ```
-mkdir static/original
-mkdir static/h264
+mkdir static/videos/original
+mkdir static/videos/h264
 ```
 The videos should be dropped into static/original/
 
